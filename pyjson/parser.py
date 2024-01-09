@@ -8,7 +8,6 @@ from .exc import (
     InvalidRoot,
     MissingToken,
     KeyError,
-    TrailingComma,
     ValueError,
 )
 
@@ -66,12 +65,14 @@ class Parser:
         return object
 
     def consume_object_pair(self):
-        if (f := self.peek()).token_type != TokenType.STRING:
+        if not self.check(TokenType.STRING):
+            f = self.peek()
             raise KeyError(
                 f"Expected map key to be a string, found {f.lexeme} on line {f.line} column {f.column}"
             )
         key = self.consume_string()
-        if (f := self.peek()).token_type != TokenType.COLON:
+        if not self.check(TokenType.COLON):
+            f = self.peek()
             raise MissingToken(
                 f"Expected a colon as key-value separator in mapping on line {f.line} column {f.column}"
             )
@@ -83,25 +84,22 @@ class Parser:
         self.advance()
         endtype: TokenType = TokenType.RIGHT_BRAKET
         array = Array(self.consume_comma_sep_values(self.consume_value, endtype))
-        if (f := self.peek()).token_type != endtype:
+        if not self.match(endtype):
+            f = self.peek()
             raise MissingToken(
                 f"Expected closing square bracket to close array on line {f.line} column {f.column}"
             )
-        self.advance()
         return array
 
     def consume_comma_sep_values(
         self, consumer: ty.Callable[[], T], endtype: TokenType
     ) -> list[T]:
         values: list[T] = []
-        while self.peek().token_type != endtype:
+        if self.peek().token_type == endtype:
+            return values
+        values.append(consumer())
+        while self.match(TokenType.COMMA):
             values.append(consumer())
-            if self.peek().token_type == TokenType.COMMA:
-                self.advance()
-                if (f := self.peek()).token_type == endtype:
-                    raise TrailingComma(
-                        f"trailing comma found on line {f.line} column {f.column}"
-                    )
         return values
 
     def consume_value(self):
@@ -128,25 +126,28 @@ class Parser:
     def consume_number(self) -> Number:
         buffer, token = [], self.peek()
         consume = lambda: buffer.append(self.advance().lexeme)
-        if self.peek().token_type == TokenType.MINUS:
+        if self.check(TokenType.MINUS):
             consume()
-        if (f := self.peek()).token_type != TokenType.NUMBER:
+        if not self.check(TokenType.NUMBER):
+            f = self.peek()
             raise MissingToken(
                 f"Expected a number after the minus token on line {f.line} column {f.column}"
             )
         consume()
-        if self.peek().token_type == TokenType.DOT:
+        if self.check(TokenType.DOT):
             consume()
-            if (f := self.peek()).token_type != TokenType.NUMBER:
+            if not self.check(TokenType.NUMBER):
+                f = self.peek()
                 raise MissingToken(
                     f"Expected a number after the dot token on line {f.line} column {f.column}"
                 )
             consume()
-        if self.peek().token_type == TokenType.E:
+        if self.check(TokenType.E):
             consume()
-            if self.peek().token_type == TokenType.MINUS:
+            if self.check(TokenType.MINUS):
                 consume()
-            if (f := self.peek()).token_type != TokenType.NUMBER:
+            if not self.check(TokenType.NUMBER):
+                f = self.peek()
                 raise MissingToken(
                     f"Expected a number after the e token on line {f.line} column {f.column}"
                 )
@@ -160,6 +161,15 @@ class Parser:
         consumed = self.peek()
         self._current += 1
         return consumed
+
+    def match(self, *token_types: TokenType):
+        current = self.peek().token_type
+        for token_type in token_types:
+            if token_type == current:
+                return self.advance()
+
+    def check(self, token_type):
+        return not self.empty() and self.peek().token_type == token_type
 
     def empty(self):
         return self.peek().token_type == TokenType.EOF
