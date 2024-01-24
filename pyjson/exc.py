@@ -2,6 +2,10 @@ class JsonError(Exception):
     ...
 
 
+class JsonEncoderError(JsonError):
+    ...
+
+
 class JsonDecoderError(JsonError):
     ...
 

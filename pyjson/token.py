@@ -4,22 +4,22 @@ __all__ = "TokenType", "Token"
 
 
 class TokenType(enum.StrEnum):
-    E = enum.auto()
-    EOF = enum.auto()
-    DOT = enum.auto()
-    NULL = enum.auto()
-    TRUE = enum.auto()
+    RIGHT_BRAKET = enum.auto()
+    RIGHT_BRACE = enum.auto()
+    LEFT_BRAKET = enum.auto()
+    LEFT_BRACE = enum.auto()
+    NUMBER = enum.auto()
+    STRING = enum.auto()
     QUOTE = enum.auto()
     MINUS = enum.auto()
     FALSE = enum.auto()
     COLON = enum.auto()
     COMMA = enum.auto()
-    NUMBER = enum.auto()
-    STRING = enum.auto()
-    LEFT_BRACE = enum.auto()
-    RIGHT_BRACE = enum.auto()
-    LEFT_BRAKET = enum.auto()
-    RIGHT_BRAKET = enum.auto()
+    NULL = enum.auto()
+    TRUE = enum.auto()
+    EOF = enum.auto()
+    DOT = enum.auto()
+    E = enum.auto()
 
 
 class Token:

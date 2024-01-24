@@ -1,5 +1,5 @@
 from .formatter import Formatter, Object, Array, Null, Number, String, Boolean
-from .token import Token, TokenType
+
 
 def _dict(map: dict) -> Object:
     pairs = []
@@ -12,17 +12,22 @@ def _dict(map: dict) -> Object:
         pairs.append(pair)
     return Object(pairs)
 
+
 def _str(string: str) -> String:
     return String(string)
 
-def _null(_: None):
+
+def _null(_: None) -> Null:
     return Null(None)
+
 
 def _number(number: int | float) -> Number:
     return Number(number)
 
+
 def _boolean(value: bool) -> Boolean:
     return Boolean(value)
+
 
 def _array(array: list) -> Array:
     values = []
@@ -32,6 +37,7 @@ def _array(array: list) -> Array:
         values.append(_encoders[type(value)](value))
     return Array(values)
 
+
 _encoders = {
     dict: _dict,
     str: _str,
@@ -39,12 +45,13 @@ _encoders = {
     int: _number,
     float: _number,
     bool: _boolean,
-    list: _array
+    list: _array,
 }
 
+
 def encode(root, indent: str | None = None) -> str:
-    formatter = Formatter(indent)
     if type(root) not in _encoders:
         raise
     root = _encoders[type(root)](root)
-    return root.accept(formatter)
+    formatter = Formatter(indent)
+    return formatter.format(root)

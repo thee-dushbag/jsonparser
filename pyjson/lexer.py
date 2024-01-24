@@ -137,8 +137,7 @@ class Lexer:
     def advance(self, count: int = 1):
         self._current += count
         self._column += count
-        consumed = self._lexeme()
-        return consumed
+        return self._lexeme()
 
     def consume(self, count: int = 0):
         consumed = self.advance(count), self._start_column

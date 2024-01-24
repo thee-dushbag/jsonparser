@@ -103,3 +103,6 @@ class Formatter(Visitor):
 
     def visit_number(self, number: Number) -> Any:
         return number.value
+
+    def format(self, root: Value) -> str:
+        return root.accept(self)
