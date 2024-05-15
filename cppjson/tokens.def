@@ -1,0 +1,17 @@
+#ifndef F
+# define F(Kind)
+#endif
+
+F(Eot)
+F(Null)
+F(True)
+F(False)
+F(Number)
+F(String)
+F(Error)
+F(Comma)
+F(Colon)
+F(OpenBrace)
+F(OpenBracket)
+F(CloseBrace)
+F(CloseBracket)
